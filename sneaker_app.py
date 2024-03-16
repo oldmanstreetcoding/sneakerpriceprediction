@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-data = pd.read_csv('./notebook/data/stockx/stockx_v2.csv')
+data = pd.read_csv('./data/stockx_v2.csv')
 
 dfcolor = data.groupby('Color2').size().reset_index(name='counts')['Color2']
 
