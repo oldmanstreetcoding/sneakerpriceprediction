@@ -20,10 +20,6 @@ def main():
 
     st.markdown('<p style="margin-top: 10px">Hi, This is a Resale Value Calculator for Newly Released Sneakers ! Please give us a minute to input some parameters, then we will give you a value of the sneaker you would like to buy.</p>', unsafe_allow_html=True)
 
-    if s6 == True:
-        st.balloons()
-        st.success('Predicted Value: $1000')
-
     s1 = st.selectbox('Brand', ['Nike', 'Adidas', 'Jordan'])
 
     s2 = st.selectbox('Color', dfcolor)
@@ -39,7 +35,9 @@ def main():
 
     s5 = st.number_input('US Size', 1)
 
-    s6 = st.button('Predict')
+    if st.button('Predict'):
+        st.balloons()
+        st.success('Predicted Value: $1000')
 
 
 if __name__ == '__main__':
