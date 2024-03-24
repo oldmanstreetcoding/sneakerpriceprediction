@@ -91,7 +91,7 @@ def getPrediction() -> None:
         'size': size
     }, index=[0])
 
-    clf = joblib.load('./model/xgb_model.joblib')
+    clf = joblib.load('./rf_model.joblib')
     price = round(clf.predict(df)[0])
 
     fprice = "{:,.1f}".format(price)
