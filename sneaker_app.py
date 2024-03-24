@@ -25,7 +25,7 @@ def main():
 
     txbrand = st.selectbox('Brand', dfbrand)
 
-    txcolor = st.selectbox('Color', dfcolor)
+    txcolor = st.selectbox('Color', ['Black', 'White', 'Red', 'Blue', 'Yellow'])
 
     txmodel = st.text_input('Model', "")
 

@@ -1,6 +1,8 @@
 import pandas as pd
 from nicegui import ui
 
+from prediction import predict
+
 ui.add_head_html('''
     <style>
         desktop {
@@ -9,14 +11,13 @@ ui.add_head_html('''
     </style>
 ''')
 
-data = pd.read_csv('./data/stockx_v2.csv')
-dfcolor = data.groupby('Color2').size().reset_index(name='counts')['Color2']
-dfcolor
-# np = dfcolor.values
-# print(np)
-# def proper_case(s):
-#     return s.title()
-# dfcolor = dfcolor.apply(proper_case)
+data = pd.read_csv('./data/df_clean.csv')
+
+dfcolor = data.groupby('ori_color1').size().reset_index(name='counts')['ori_color1'].unique().tolist()
+
+dfgender = data.groupby('ori_gender').size().reset_index(name='counts')['ori_gender'].unique().tolist()
+
+dfbrand = data.groupby('ori_brand').size().reset_index(name='counts')['ori_brand'].unique().tolist()
 
 with ui.card().classes('desktop').style('margin:auto;margin-top:10px;'):
     with ui.row().classes('justify-center w-full').style('font-weight: bold;font-size:30px;background-color:tomato;color:white;padding:10px;'):
@@ -25,12 +26,12 @@ with ui.card().classes('desktop').style('margin:auto;margin-top:10px;'):
                 
         ui.html('<p>Hi, This is a Resale Value Calculator for Newly Released Sneakers ! Please give us a minute to input some parameters, then we will give you a value of the sneaker you would like to buy.<p>')
         
-        txbrand = ui.select(['Nike', 'Adidas', 'Jordan'], label='Brand').style('width: 100%;')
+        txbrand = ui.select(dfbrand, label='Brand').style('width: 100%;')
         txcolor = ui.select(['Black', 'White', 'Red', 'Blue', 'Yellow'], label='Color').style('width: 100%;')
         txmodel = ui.input(label='Model', 
                 placeholder='Type your Model...', 
                 validation={'Input too long': lambda value: len(value) < 20}).style('width: 100%;')
-        txgender = ui.select(['Man', 'Woman'], label='Gender').style('width: 100%;')
+        txgender = ui.select(dfgender, label='Gender').style('width: 100%;')
         txsize = ui.number(label='US Size', 
                            value=5, 
                            format='%.1f').style('width: 100%;')

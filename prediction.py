@@ -31,5 +31,5 @@ def getFeatures(data, model, size, brand, gender, color):
     return df
 
 def predict(data, txmodel, txsize, txbrand, txgender, txcolor):
-    clf = joblib.load('./model/rf_model.joblib')
+    clf = joblib.load('./model/xgb_model.joblib')
     return clf.predict(getFeatures(data, txmodel, txsize, txbrand, txgender, txcolor))[0]
