@@ -52,3 +52,4 @@ if __name__ == '__main__':
 #7. Show picture
 #8. Show graphic price
 #9. Show recommend buy or no
+#10. resize RF model
