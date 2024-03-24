@@ -1,14 +1,17 @@
 import pandas as pd
 import streamlit as st
 
-data = pd.read_csv('./data/stockx_v2.csv')
+from prediction import predict
 
-dfcolor = data.groupby('Color2').size().reset_index(name='counts')['Color2']
+# import joblib
 
-def proper_case(s):
-    return s.title()
+data = pd.read_csv('./data/df_clean.csv')
 
-dfcolor = dfcolor.apply(proper_case)
+dfcolor = data.groupby('ori_color1').size().reset_index(name='counts')['ori_color1']
+
+dfbrand = data.groupby('ori_brand').size().reset_index(name='counts')['ori_brand']
+
+dfgender = data.groupby('ori_gender').size().reset_index(name='counts')['ori_gender']
 
 def main():
     html_temp = """
@@ -20,25 +23,32 @@ def main():
 
     st.markdown('<p style="margin-top: 10px">Hi, This is a Resale Value Calculator for Newly Released Sneakers ! Please give us a minute to input some parameters, then we will give you a value of the sneaker you would like to buy.</p>', unsafe_allow_html=True)
 
-    s1 = st.selectbox('Brand', ['Nike', 'Adidas', 'Jordan'])
+    txbrand = st.selectbox('Brand', dfbrand)
 
-    s2 = st.selectbox('Color', dfcolor)
+    txcolor = st.selectbox('Color', dfcolor)
 
-    s3 = st.text_input('Model', "")
+    txmodel = st.text_input('Model', "")
 
-    s4 = st.selectbox('Gender', ['Man', 'Woman'])
+    txgender = st.selectbox('Gender', dfgender)
 
-    if s4 == "Man":
-        s4 = 1
-    else:
-        s4 = 2
-
-    s5 = st.number_input('US Size', 1)
+    txsize = st.number_input('US Size', 4)
 
     if st.button('Predict'):
+        price = predict(data, txmodel, txsize, txbrand, txgender, txcolor)
+        st.success('Predicted Value: $' + str(price))
         st.balloons()
-        st.success('Predicted Value: $1000')
 
 
 if __name__ == '__main__':
     main()
+
+#To Do:
+#1. Target prediction ? average annual or last sale?
+#2. Codespace
+#3. Hyperparameter
+#4. To many color, shoes type 
+#5. case sensitive
+#6. Validasi input form
+#7. Show picture
+#8. Show graphic price
+#9. Show recommend buy or no
