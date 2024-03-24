@@ -1,5 +1,8 @@
 # ignore ALL .log files
 *.log
 
+# ignore gitignore files
+.gitignore
+
 # ignore ALL files in ANY directory named temp
 model/
