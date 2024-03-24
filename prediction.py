@@ -1,7 +1,9 @@
 import pandas as pd
 import joblib
 
-def getFeatures(data, model, size, brand, gender, color):
+def getFeatures(model, size, brand, gender, color):
+
+    data = pd.read_csv('./data/df_clean.csv')
 
     txbrand = data[data['ori_brand'] == brand]['brand'].unique()
 
