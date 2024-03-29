@@ -4,5 +4,5 @@
 # ignore gitignore files
 .gitignore
 
-# ignore ALL files in ANY directory named
-model/rf_model.joblib
+# ignore rf_model.joblib
+rf_model.joblib
