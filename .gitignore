@@ -5,6 +5,4 @@
 .gitignore
 
 # ignore ALL files in ANY directory named
-
-
-rf_model.joblib
+model/rf_model.joblib

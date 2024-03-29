@@ -110,7 +110,7 @@ def getPrediction() -> None:
 
 with ui.card().classes('desktop').style('margin:auto;margin-top:10px;'):
     with ui.row().classes('justify-center w-full').style('font-weight: bold;font-size:30px;background-color:tomato;color:white;padding:10px;'):
-        ui.html('Resale Value Prediction')
+        ui.html('Sneaker Resale Value Prediction')
     with ui.row().classes('w-full').style('border: 2px solid red; padding: 15px;'):
                 
         ui.html('<p>Hi, This is a Resale Value Calculator for Newly Released Sneakers ! Please give us a minute to input some parameters, then we will give you a value of the sneaker you would like to buy.<p>')

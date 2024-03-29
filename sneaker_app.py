@@ -49,7 +49,7 @@ if __name__ == '__main__':
 #4. To many color, shoes type 
 #5. case sensitive
 #6. Validasi input form
-#7. Show picture
-#8. Show graphic price by days_postrelease
-#9. Show recommend buy or no
-#10. resize RF model
+#7. Show graphic price by days_postrelease
+#8. Show recommend buy or no
+#9. resize RF model
+#10. Feature importance
