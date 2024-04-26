@@ -5,4 +5,4 @@
 .gitignore
 
 # ignore rf_model
-# rf_model.joblib
+rf_model.zip

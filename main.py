@@ -1,30 +1,28 @@
+# Title: Sneaker Resale Value Predictor
+# Author: Ahmad Furqan (afurqan@andrew.cmu.edu)
+# Date: 04-26-2024
+# Description: This is a Python script to create a web-based application using NiceGUI library to predict the resale value of newly released sneakers. The application will take the brand, model, color, gender type and size from user input and predict the resale value of the sneaker based on random forest model. The application will also display the price history of the selected sneaker from stocx dataset.
+
+# Import python libraries
 import pandas as pd
-import numpy as np
 from matplotlib import pyplot as plt
 from nicegui import ui
-
-import pandas as pd
 import joblib
 
-ui.add_head_html('''
-    <style>
-        desktop {
-            width: 50%;
-        }
-    </style>
-''')
-
+# Define global variables
 rfmodel = 'rf_model.joblib'
-
-data = pd.read_csv("data/input_df.csv")
-
 global_model = None
 global_color = None
 global_imgurl = None
 global_price = None
 
-async def predict_price(input_features_dict):
-    # Load the trained model and the imputer
+# Load the data
+data = pd.read_csv("input_data.csv")
+
+# Define the function to predict the price
+def predict_price(input_features_dict):
+    
+    # Load the trained model
     model = joblib.load(rfmodel)
 
     # Convert the input features dictionary to a DataFrame
@@ -33,19 +31,23 @@ async def predict_price(input_features_dict):
     # Ensure that the order of the features matches the training data
     top_features = ['averagePrice_Annual_Statistics', 'size', 'days_since_release', 'salesCount_Annual', 'retailPrice', 'brand_adidas', 'brand_Nike', 'gender_men', 'brand_ASICS', 'gender_women', 'brand_Jordan', 'brand_New Balance']
     
+    # Filter the DataFrame based on the top features
     input_df = input_df[top_features]
 
     # Make prediction
     prediction = model.predict(input_df)
 
+    # Update the global variable to be used in the UI
     global global_price
-
     global_price = prediction[0]
 
+    # Hide the loading spinner
     show_spinner.refresh(False)
 
 
+# Define the function to fetch the features
 def fetch_features(brand, model, gender, color, size):
+    
     # Compute the average 'retailPrice' for the specified brand
     brand_average_price = data[(data['brand'] == brand) & (data['primaryTitle'] == model)]['retailPrice'].mean()
 
@@ -76,7 +78,6 @@ def fetch_features(brand, model, gender, color, size):
 
     # If the DataFrame is not empty, return the average value, except retailPrice using the latest release price
     most_recent_release = filtered_df.sort_values('days_since_release', ascending=True).iloc[0]
-
     return {
         'averagePrice_Annual_Statistics': filtered_df['averagePrice_Annual_Statistics'].mean(),
         'size': size,
@@ -92,42 +93,62 @@ def fetch_features(brand, model, gender, color, size):
         'brand_New Balance': 1 if brand == 'New Balance' else 0
     }
 
-async def getPrediction() -> None:
 
+# Define the function to get the prediction
+def getPrediction() -> None:
+
+    # Show the loading spinner
     show_spinner.refresh(True)
 
+    # localizing the global variables
     global global_model
     global global_color
     global global_imgurl
     global global_price
 
+    # Get the input values
     brand = txbrand.value
     gender = txgender.value
     size = txsize.value
-
     model = global_model
     color = global_color
     tximageURL = global_imgurl
 
+    # Check if any of the fields are empty
     if brand == None or model == None or color == None or size == 0 or gender == None:
+        # Show an error message in toast message
         ui.notify('Please fill in all the fields')
         show_spinner.refresh(False)
+
     else:
 
+        # create dataframe for price chart based on the input
         dfPriceChart = data[(data['brand'] == brand) & (data['primaryTitle'] == model) & (data['gender'] == gender.lower()) & (data['color1'] == color)]
-        
         dfPriceChart = dfPriceChart[['releaseDate', 'lastSale']].sort_values(by='releaseDate')
-        # print(dfPriceChart)
+        
+        # Print the price history for debugging
+        print("")
+        print("====================================")
+        print("Selected Sneaker Details :"+brand+"-"+model)
+        print("")
+        print("Price History: ")
+        print(dfPriceChart)
 
         # Fetch other features
         input_features_dict = fetch_features(brand, model, gender, color, size)
 
+        print("")
+        print("Selected Features :")
         print(input_features_dict)
 
-        # Predict price
-        await predict_price(input_features_dict)
+        # Wait for the prediction
+        predict_price(input_features_dict)
 
+        # get the predicted price
         fprice = "{:,.1f}".format(global_price)
+        print("")
+        print("Predicted Price : $", fprice)
+        print("====================================")
 
         with ui.dialog() as dialog, ui.card():
             with ui.row().classes('w-full justify-center').style('padding:5px;border:2px solid tomato;'):
@@ -141,39 +162,52 @@ async def getPrediction() -> None:
                     plt.plot(dfPriceChart['releaseDate'], dfPriceChart['lastSale'], '-')
                 ui.html('Does this help? if you would like to continue, please push the button below').style('margin-top:-10px;')
                 ui.button('Back', on_click=dialog.close).style('margin-top:-10px;')
-
         dialog.open()
 
+
+# Define the function to update the selected color
 def update_color(brand, model, color):
+    # localizing the global variables
     global global_color
     global global_imgurl
 
     global_color = color
     global_imgurl = data[(data['brand'] == brand) & (data['primaryTitle'] == model) & (data['color1'] == color)]['thumbUrl'].unique()[0]
 
+
+# Define the function to update the selected model
 @ui.refreshable
 def show_color(brand = '', model = '') -> None:
     global global_model
+
+    # Check if the brand and model are empty
     if brand == '' or model == '':
         txcolor = ui.select([], label='Color').style('width: 100%;').disable()
     else:
+        # Get the unique colors for the selected brand and model
         dfcolor = data[(data['brand'] == brand) & (data['primaryTitle'] == model)]['color1'].unique().tolist()
         txcolor = ui.select(dfcolor, label='Color', on_change=lambda e: {update_color(brand, model, e.value)}).style('width: 100%;').props('use-chips')
         global_model = model
 
+
+# Initially, input model is in disabled mode, it will active after brand is selected
 @ui.refreshable
 def show_model(brand = '') -> None:
+    # If brand is empty, disable the model input
     if brand == '':
         txmodel = ui.select([], label='Model').style('width: 100%;').disable()
     else:
+        # Get the unique models for the selected brand
         dfmodel = data[data['brand'] == brand]['primaryTitle'].unique().tolist()
         txmodel = ui.select(dfmodel, label='Model', on_change=lambda e: show_color.refresh(brand, e.value)).style('width: 100%;').props('use-chips')
 
+
+# Define the function to show the loading spinner
 @ui.refreshable
 def show_spinner(status=False) -> None:
     ui.spinner(size='sm').style('margin-top: 5px;').set_visibility(status)
 
-
+# The main UI layout
 with ui.card().classes('desktop').style('margin:auto;margin-top:10px;'):
     with ui.row().classes('justify-center w-full').style('font-weight: bold;font-size:30px;background-color:tomato;color:white;padding:10px;'):
         ui.html('Sneaker Resale Value Predictor')
@@ -200,5 +234,4 @@ with ui.card().classes('desktop').style('margin:auto;margin-top:10px;'):
                     with ui.row().classes('w-full'):
                         ui.button('Predict', on_click=lambda e: getPrediction())
                         show_spinner()
-
 ui.run()
